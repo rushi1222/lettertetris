@@ -1,53 +1,58 @@
 class App {
   constructor() {
-    const output = document.querySelector('#messageOutput');
-    const increaseButton = document.querySelector('#btn-increase');
-    const decreaseButton = document.querySelector('#btn-decrease');
-    const usernameLabel = document.querySelector('#username');
-    const counterLabel = document.querySelector('#counter');
-    var counter = 0;
+    const searchButton = document.getElementById('btn-search');
+  const pokemonNameInput = document.getElementById('pokemon-name');
+  const pokemonDetailsDiv = document.getElementById('pokemon-details');
+  const messageOutput = document.getElementById('messageOutput');
 
-    // When the Devvit app sends a message with `context.ui.webView.postMessage`, this will be triggered
-    window.addEventListener('message', (ev) => {
-      const { type, data } = ev.data;
+  const nameDisplay = document.getElementById('pokemon-name-display');
+  const image = document.getElementById('pokemon-image');
+  const types = document.getElementById('pokemon-types');
+  const region = document.getElementById('pokemon-region');
+  const abilities = document.getElementById('pokemon-abilities');
+  const moves = document.getElementById('pokemon-moves');
 
-      // Reserved type for messages sent via `context.ui.webView.postMessage`
-      if (type === 'devvit-message') {
-        const { message } = data;
+  // Listen for messages from main.tsx
+  window.addEventListener('message', (ev) => {
+    const { type, data } = ev.data;
 
-        // Always output full message
-        output.replaceChildren(JSON.stringify(message, undefined, 2));
+    if (type === 'devvit-message') {
+      const { message } = data;
+      messageOutput.textContent = JSON.stringify(message, null, 2);
 
-        // Load initial data
-        if (message.type === 'initialData') {
-          const { username, currentCounter } = message.data;
-          usernameLabel.innerText = username;
-          counterLabel.innerText = counter = currentCounter;
-        }
+      if (message.type === 'sendPokemon') {
+        const pokemon = message.data.pokemon;
+        if (pokemon) {
+          // Populate Pokémon details
+          nameDisplay.textContent = pokemon.name;
+          image.src = pokemon.image;
+          types.textContent = pokemon.types.join(', ');
+          region.textContent = pokemon.region;
+          abilities.textContent = pokemon.abilities.join(', ');
+          moves.textContent = pokemon.notable_moves.join(', ');
 
-        // Update counter
-        if (message.type === 'updateCounter') {
-          const { currentCounter } = message.data;
-          counterLabel.innerText = counter = currentCounter;
+          pokemonDetailsDiv.style.display = 'block';
+        } else {
+          alert('Pokémon not found! Please try again.');
+          pokemonDetailsDiv.style.display = 'none';
         }
       }
-    });
+    }
+  });
 
-    increaseButton.addEventListener('click', () => {
-      // Sends a message to the Devvit app
+  // Send a message to main.tsx to fetch Pokémon data
+  searchButton.addEventListener('click', () => {
+    const pokemonName = pokemonNameInput.value.trim();
+    if (pokemonName) {
       window.parent?.postMessage(
-        { type: 'setCounter', data: { newCounter: Number(counter + 1) } },
+        {
+          type: 'getPokemon',
+          data: { name: pokemonName },
+        },
         '*'
       );
-    });
-
-    decreaseButton.addEventListener('click', () => {
-      // Sends a message to the Devvit app
-      window.parent?.postMessage(
-        { type: 'setCounter', data: { newCounter: Number(counter - 1) } },
-        '*'
-      );
-    });
+    }
+  });
   }
 }
 

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta charset="UTF-8" />
+    <title>Pokémon Viewer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Pokémon Viewer</h1>
+    <div class="search-container">
+      <label for="pokemon-name">Enter Pokémon Name:</label>
+      <input type="text" id="pokemon-name" placeholder="e.g., Pikachu" />
+      <button id="btn-search">Search Pokémon</button>
+    </div>
+
+    <div id="pokemon-details" style="display: none;">
+      <h2 id="pokemon-name-display"></h2>
+      <img id="pokemon-image" src="" alt="Pokémon Image" />
+      <p><strong>Type:</strong> <span id="pokemon-types"></span></p>
+      <p><strong>Region:</strong> <span id="pokemon-region"></span></p>
+      <p><strong>Abilities:</strong> <span id="pokemon-abilities"></span></p>
+      <p><strong>Notable Moves:</strong> <span id="pokemon-moves"></span></p>
+    </div>
+
+    <h3>Last message from Devvit blocks:</h3>
+    <pre id="messageOutput"></pre>
+
+    <script type="application/javascript" src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "name": "Bulbasaur",
+        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+        "types": ["Grass", "Poison"],
+        "region": "Kanto",
+        "abilities": ["Overgrow", "Chlorophyll"],
+        "notable_moves": ["Vine Whip", "Razor Leaf", "Solar Beam", "Sleep Powder"]
+    },
+    {
+        "id": 4,
+        "name": "Charmander",
+        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
+        "types": ["Fire"],
+        "region": "Kanto",
+        "abilities": ["Blaze", "Solar Power"],
+        "notable_moves": ["Ember", "Flamethrower", "Fire Spin", "Slash"]
+    },
+    {
+        "id": 7,
+        "name": "Squirtle",
+        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
+        "types": ["Water"],
+        "region": "Kanto",
+        "abilities": ["Torrent", "Rain Dish"],
+        "notable_moves": ["Water Gun", "Bubble Beam", "Hydro Pump", "Withdraw"]
+    },
+    {
+        "id": 25,
+        "name": "Pikachu",
+        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+        "types": ["Electric"],
+        "region": "Kanto",
+        "abilities": ["Static", "Lightning Rod"],
+        "notable_moves": ["Thunder Shock", "Quick Attack", "Thunderbolt", "Iron Tail"]
+    }
+]

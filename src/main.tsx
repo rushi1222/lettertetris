@@ -1,20 +1,16 @@
 import './createPost.js';
-
 import { Devvit, useState } from '@devvit/public-api';
+import data from './data.json'; // Import Pokémon data from data.json
 
 // Defines the messages that are exchanged between Devvit and Web View
 type WebViewMessage =
   | {
-      type: 'initialData';
-      data: { username: string; currentCounter: number };
+      type: 'getPokemon';
+      data: { name: string };
     }
   | {
-      type: 'setCounter';
-      data: { newCounter: number };
-    }
-  | {
-      type: 'updateCounter';
-      data: { currentCounter: number };
+      type: 'sendPokemon';
+      data: { pokemon: any };
     };
 
 Devvit.configure({
@@ -24,56 +20,54 @@ Devvit.configure({
 
 // Add a custom post type to Devvit
 Devvit.addCustomPostType({
-  name: 'Webview Example',
+  name: 'Pokemon Viewer',
   height: 'tall',
   render: (context) => {
-    // Load username with `useAsync` hook
-    const [username] = useState(async () => {
-      const currUser = await context.reddit.getCurrentUser();
-      return currUser?.username ?? 'anon';
-    });
+    // State for the currently selected Pokémon
+    type Pokemon = {
+      id: number;
+      name: string;
+      image: string;
+      types: string[];
+      region: string;
+      abilities: string[];
+      notable_moves: string[];
+    };
 
-    // Load latest counter from redis with `useAsync` hook
-    const [counter, setCounter] = useState(async () => {
-      const redisCount = await context.redis.get(`counter_${context.postId}`);
-      return Number(redisCount ?? 0);
-    });
+    const [pokemon, setPokemon] = useState<Pokemon | null>(null);
 
-    // Create a reactive state for web view visibility
+    // State for controlling web view visibility
     const [webviewVisible, setWebviewVisible] = useState(false);
 
-    // When the web view invokes `window.parent.postMessage` this function is called
-    const onMessage = async (msg: WebViewMessage) => {
-      switch (msg.type) {
-        case 'setCounter':
-          await context.redis.set(`counter_${context.postId}`, msg.data.newCounter.toString());
-          context.ui.webView.postMessage('myWebView', {
-            type: 'updateCounter',
-            data: {
-              currentCounter: msg.data.newCounter,
-            },
-          });
-          setCounter(msg.data.newCounter);
-          break;
-        case 'initialData':
-        case 'updateCounter':
-          break;
+    // Handle messages from the Web View
+    const onMessage = (msg: WebViewMessage) => {
+      if (msg.type === 'getPokemon') {
+        const { name } = msg.data;
 
-        default:
-          throw new Error(`Unknown message type: ${msg satisfies never}`);
+        // Find Pokémon by name in data.json
+        const pokemonData = data.find((p) => p.name.toLowerCase() === name.toLowerCase());
+
+        if (pokemonData) {
+          // Send the Pokémon data back to the Web View
+          context.ui.webView.postMessage('myWebView', {
+            type: 'sendPokemon',
+            data: { pokemon: pokemonData },
+          });
+
+          // Update local state to display Pokémon details
+          setPokemon(pokemonData);
+        } else {
+          context.ui.webView.postMessage('myWebView', {
+            type: 'sendPokemon',
+            data: { pokemon: null },
+          });
+        }
       }
     };
 
-    // When the button is clicked, send initial data to web view and show it
+    // When the button is clicked, open the web view
     const onShowWebviewClick = () => {
       setWebviewVisible(true);
-      context.ui.webView.postMessage('myWebView', {
-        type: 'initialData',
-        data: {
-          username: username,
-          currentCounter: counter,
-        },
-      });
     };
 
     // Render the custom post type
@@ -85,33 +79,27 @@ Devvit.addCustomPostType({
           alignment="middle center"
         >
           <text size="xlarge" weight="bold">
-            Example App
+            Pokémon Viewer
           </text>
+          {pokemon ? (
+            <vstack>
+              <text size="large" weight="bold">{pokemon.name}</text>
+              <text size="medium">Type: {pokemon.types.join(', ')}</text>
+              <text size="medium">Region: {pokemon.region}</text>
+              <text size="medium">Abilities: {pokemon.abilities.join(', ')}</text>
+              <text size="medium">Notable Moves: {pokemon.notable_moves.join(', ')}</text>
+            </vstack>
+          ) : (
+            <text size="medium">Search for a Pokémon to see its details.</text>
+          )}
           <spacer />
-          <vstack alignment="start middle">
-            <hstack>
-              <text size="medium">Username:</text>
-              <text size="medium" weight="bold">
-                {' '}
-                {username ?? ''}
-              </text>
-            </hstack>
-            <hstack>
-              <text size="medium">Current counter:</text>
-              <text size="medium" weight="bold">
-                {' '}
-                {counter ?? ''}
-              </text>
-            </hstack>
-          </vstack>
-          <spacer />
-          <button onPress={onShowWebviewClick}>Launch App</button>
+          <button onPress={onShowWebviewClick}>Launch Webview</button>
         </vstack>
         <vstack grow={webviewVisible} height={webviewVisible ? '100%' : '0%'}>
           <vstack border="thick" borderColor="black" height={webviewVisible ? '100%' : '0%'}>
             <webview
               id="myWebView"
-              url="page.html"
+              url="challenge.html"
               onMessage={(msg) => onMessage(msg as WebViewMessage)}
               grow
               height={webviewVisible ? '100%' : '0%'}
